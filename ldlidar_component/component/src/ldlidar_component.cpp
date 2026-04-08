@@ -325,13 +325,7 @@ void LdLidarComponent::publishLaserScan(ldlidar::Points2D & src, double lidar_sp
     beam_size = static_cast<int>(src.size());
   }
 
-  // Use the actual measurement timestamp of the first point in the scan
-  // to minimize latency when the sensor is rotating
-  if (!src.empty()) {
-    start_scan_time = rclcpp::Time(static_cast<int64_t>(src.front().stamp), RCL_SYSTEM_TIME);
-  } else {
-    start_scan_time = this->now();
-  }
+  start_scan_time = this->now();
   scan_time = (start_scan_time.seconds() - end_scan_time.seconds());
 
   if (first_scan) {
@@ -347,7 +341,7 @@ void LdLidarComponent::publishLaserScan(ldlidar::Points2D & src, double lidar_sp
   if (lidar_spin_freq > 0) {
     std::unique_ptr<sensor_msgs::msg::LaserScan> msg =
       std::make_unique<sensor_msgs::msg::LaserScan>();
-    msg->header.stamp = start_scan_time;  // Actual first-point measurement time
+    msg->header.stamp = start_scan_time;
     msg->header.frame_id = _frameId;
     msg->angle_min = angle_min;
     msg->angle_max = angle_max;
